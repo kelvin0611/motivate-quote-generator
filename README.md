@@ -2,11 +2,12 @@
 
 > A modern, responsive web application designed to boost morale for Hong Kong students facing exam pressure, featuring multi-language support and a serverless architecture.
 
-![Project Preview](screenshot.png)
+![Project Preview](<img width="575" height="465" alt="Screenshot 2026-02-11 at 11 00 11 PM" src="https://github.com/user-attachments/assets/db12d6a9-367f-44a1-a0c5-d1648bd80882" />)
 
 ## 🔗 Live Demo
 
-**[View the Live Project Here](https://your-username.github.io/your-repo-name)**
+**[View the Live Project Here]()**
+
 
 ---
 
