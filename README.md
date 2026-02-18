@@ -6,7 +6,19 @@
 
 ## 🔗 Live Demo
 
-**[View the Live Project Here]()**
+### 🚀 [**Click Here to View Live Project**](https://kelvin0611.github.io/motivate-quote-generator/)
+
+> **Note**: The application is hosted on GitHub Pages and runs entirely client-side.
+
+---
+
+## 📸 Interface Previews
+
+| **Quote View (Light/Dark)** | **Mobile Responsiveness** |
+|:---:|:---:|
+| ![Quote UI](screenshots/quote1.png) | ![Responsive View](screenshots/quote2.png) |
+
+---
 
 
 ---
