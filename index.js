@@ -1,11 +1,11 @@
-// 定義一個全域變數來存語錄，確保任何地方都能讀到
+// Define global variable for quotes
 var globalQuotes = [];
 
 $(document).ready(function() {
-    // --- 設定區 ---
+    // --- Settings ---
     const yourSheetID = "1o0-ffDBOVSnoTOQnAhLSbE8pf-ZS-QgmrOcYOzxF9fo"; 
     
-    // UI 翻譯字典
+    // UI Dictionary
     const translations = {
         tc: { nextBtn: "下一句", copyTitle: "複製文字", waTitle: "分享到 WhatsApp", credit: "Designed for HK Students", copied: "已複製！", error: "暫時無法獲取語錄", shareText: "✨ 今日一句：" },
         en: { nextBtn: "Next Quote", copyTitle: "Copy Text", waTitle: "Share to WhatsApp", credit: "Designed for HK Students", copied: "Copied!", error: "Unable to fetch quotes", shareText: "✨ Daily Quote:" },
@@ -16,14 +16,14 @@ $(document).ready(function() {
     let currentQuoteData = {}; 
     const hkTags = ["#DSE加油", "#頂住呀", "#HKStudent", "#NeverGiveUp", "#搏盡無悔", "#DSEfighter"];
 
-    // 1. 初始化
+    // 1. Initialize
     init();
 
     function init() {
         updateDate();
         loadTheme();
         
-        // 綁定語言切換
+        // Language Switcher
         $("#lang-select").change(function() {
             currentLang = $(this).val();
             updateUILanguage();
@@ -32,44 +32,37 @@ $(document).ready(function() {
             }
         });
 
-        // 開始載入 (使用 JSONP 方式)
+        // Start Loading Data
         fetchGoogleSheetJSONP();
     }
 
-    // --- JSONP 核心載入邏輯 ---
+    // --- Core Data Fetching ---
     function fetchGoogleSheetJSONP() {
         $("#quote").css("opacity", 0.5);
-
-        // 定義回呼函式名稱
         const callbackName = 'googleSheetCallback';
-        
-        // 建立 API 網址，gid=0 代表第一個分頁
-        // tqx=responseHandler:... 告訴 Google 把資料包在函式裡傳回來
+        // gid=0 is the first sheet
         const url = `https://docs.google.com/spreadsheets/d/${yourSheetID}/gviz/tq?tqx=responseHandler:${callbackName}&gid=0`;
 
-        // 動態創建 script 標籤
         const script = document.createElement('script');
         script.src = url;
         script.onerror = function() {
-            console.error("載入失敗");
+            console.error("Fetch failed");
             useLocalQuotes();
         };
-        
-        // 把 script 加入網頁，瀏覽器會立即執行它
         document.body.appendChild(script);
     }
 
-    // --- 備用本地語錄 ---
+    // --- Fallback Data ---
     function useLocalQuotes() {
         globalQuotes = [
             { quote_tc: "休息是為了走更長的路。", author_tc: "老生常談", quote_en: "Rest is for a longer journey.", author_en: "Proverb", quote_sc: "休息是为了走更长的路。", author_sc: "老生常谈" },
             { quote_tc: "做人如果無夢想，同條鹹魚有咩分別？", author_tc: "少林足球", quote_en: "No dream, no difference from a salted fish.", author_en: "Shaolin Soccer", quote_sc: "做人如果没有梦想，跟咸鱼有什么区别？", author_sc: "少林足球" }
         ];
-        console.log("切換回本地備用數據");
+        console.log("Using local backup data");
         displayRandomQuote();
     }
 
-    // --- 全域顯示邏輯 ---
+    // --- Display Logic ---
     window.displayRandomQuote = function() {
         if (globalQuotes.length === 0) return;
         const randomIndex = Math.floor(Math.random() * globalQuotes.length);
@@ -87,7 +80,6 @@ $(document).ready(function() {
     function renderQuoteText(item) {
         let q = "", a = "";
         
-        // 根據你的 A-F 欄順序
         if (currentLang === "tc") {
             q = item.quote_tc || item.quote_en; 
             a = item.author_tc || item.author_en;
@@ -101,6 +93,9 @@ $(document).ready(function() {
 
         if (!q) q = translations[currentLang].error;
 
+        // Auto-Resize Font for Long Text
+        adjustFontSize(q);
+
         $("#quote").animate({ opacity: 0 }, 200, function() {
             $(this).text(q).animate({ opacity: 1 }, 200);
         });
@@ -110,7 +105,22 @@ $(document).ready(function() {
         });
     }
 
-    // 按鈕事件
+    // Helper: Shrink font if text is too long (Mobile Friendly)
+    function adjustFontSize(text) {
+        const length = text.length;
+        const $quote = $("#quote");
+        
+        // Default size defined in CSS is 1.5rem
+        if (length > 150) {
+            $quote.css("font-size", "1rem"); 
+        } else if (length > 80) {
+            $quote.css("font-size", "1.2rem");
+        } else {
+            $quote.css("font-size", ""); // Reset to default
+        }
+    }
+
+    // --- Event Listeners ---
     $("#new").click(function() { window.displayRandomQuote(); });
 
     $("#copy-btn").click(function() {
@@ -139,7 +149,7 @@ $(document).ready(function() {
         window.open('https://wa.me/?text=' + text, '_blank');
     });
 
-    // 輔助函式
+    // --- Utilities ---
     function updateDate() {
         const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
         const locale = currentLang === 'en' ? 'en-US' : (currentLang === 'sc' ? 'zh-CN' : 'zh-HK');
@@ -168,21 +178,18 @@ $(document).ready(function() {
     }
 });
 
-// --- 這就是 JSONP 的魔法 ---
-// 這個函式必須放在 $(document).ready 之外，讓 Google 能呼叫它
+// --- Google Sheet Callback (Must be global) ---
 window.googleSheetCallback = function(json) {
-    console.log("Google Sheet 資料回來了！", json);
+    console.log("Data Received", json);
     
     const rows = json.table.rows;
     const result = [];
 
-    // 解析 Google 的複雜資料結構
     rows.forEach(row => {
         const c = row.c;
         if (!c) return;
 
-        // A=0, B=1, C=2, D=3, E=4, F=5
-        // 使用你的 A-F 順序
+        // Map Columns A-F
         const item = {
             quote_tc: c[0] ? c[0].v : "",
             author_tc: c[1] ? c[1].v : "",
@@ -192,14 +199,13 @@ window.googleSheetCallback = function(json) {
             author_sc: c[5] ? c[5].v : ""
         };
 
-        // 過濾掉標題列 (如果第一欄是 quote_tc)
         if (item.quote_tc !== "quote_tc" && (item.quote_tc || item.quote_en)) {
             result.push(item);
         }
     });
 
     if (result.length > 0) {
-        globalQuotes = result; // 存入全域變數
-        window.displayRandomQuote(); // 顯示第一句
+        globalQuotes = result;
+        window.displayRandomQuote();
     }
 };
